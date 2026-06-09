@@ -1,0 +1,64 @@
+using System;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+
+public class MenuCaller : MonoBehaviour
+{
+    private static bool s_menuStatus;
+    public static bool S_MenuStatus
+    {
+        get => s_menuStatus;
+        set
+        {
+            s_menuStatus = value;
+            Time.timeScale = value ? 0.0f : 1.0f;
+            OnMenuCalled?.Invoke();
+            OnMenuCalledWithStatus?.Invoke(S_MenuStatus);
+        }
+    }
+
+    private InputSystem_Actions _inputActions;
+
+    public UnityEvent OnMenuCalledEvent;
+    public UnityEvent<bool> OnMenuCalledWithStatusEvent;
+    public static Action OnMenuCalled;
+    public static Action<bool> OnMenuCalledWithStatus;
+
+    [RuntimeInitializeOnLoadMethod]
+    private static void Init()
+    {
+        s_menuStatus = false;
+        SceneManager.sceneLoaded -= OnSceneChange;
+        SceneManager.sceneLoaded += OnSceneChange;
+    }
+    private static void OnSceneChange(Scene _s, LoadSceneMode _l)
+    {
+        S_MenuStatus = false;
+    }
+
+    private void OnEnable()
+    {
+        _inputActions ??= new();
+        _inputActions.Enable();
+        _inputActions.UI.MenuCall.performed -= OnCall;
+        _inputActions.UI.MenuCall.performed += OnCall;
+    }
+    private void OnDisable()
+    {
+        _inputActions.UI.MenuCall.performed -= OnCall;
+        _inputActions.Disable();
+    }
+
+    public void ChangeStatus()
+    {
+        S_MenuStatus = !S_MenuStatus;
+        OnMenuCalledEvent?.Invoke();
+        OnMenuCalledWithStatusEvent?.Invoke(S_MenuStatus);
+    }
+    private void OnCall(InputAction.CallbackContext context)
+    {
+        ChangeStatus();
+    }
+}

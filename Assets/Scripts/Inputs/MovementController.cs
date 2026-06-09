@@ -1,0 +1,85 @@
+using DG.Tweening;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class MovementController : MonoBehaviour
+{
+    [SerializeField]
+    private Animator _animator;
+    private readonly int _moveSpeedAnimatorPropId = Animator.StringToHash("MoveSpeed");
+    [SerializeField]
+    private float _moveSpeed = 1f;
+    [SerializeField, Range(0f, 1000f)]
+    private float _jumpForce = 100f;
+    [SerializeField, Range(0f, 5f)]
+    private float _sprintForce = 2f;
+    [SerializeField]
+    private bool _multiplyByMass = true;
+    private InputSystem_Actions _inputActions;
+    private Rigidbody _rb;
+
+    [field: SerializeField, Range(0f, 5f)]
+    public float SmoothSprintModifier { get; private set; }
+
+    private Tween _sprintAnimation;
+
+    private void Start()
+    {
+        SmoothSprintModifier = 1;
+    }
+    private void OnEnable()
+    {
+        _rb ??= GetComponent<Rigidbody>();
+        _inputActions ??= new();
+        _inputActions?.Enable();
+        _inputActions.Player.Jump.performed -= OnJump;
+        _inputActions.Player.Jump.performed += OnJump;
+
+        _inputActions.Player.Sprint.started -= OnSprintStart;
+        _inputActions.Player.Sprint.started += OnSprintStart;
+        _inputActions.Player.Sprint.canceled -= OnSprintEnd;
+        _inputActions.Player.Sprint.canceled += OnSprintEnd;
+    }
+    private void OnDisable()
+    {
+        _inputActions.Player.Jump.performed -= OnJump;
+
+        _inputActions.Player.Sprint.started -= OnSprintStart;
+        _inputActions.Player.Sprint.canceled -= OnSprintEnd;
+        _inputActions.Disable();
+    }
+
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        _rb.AddForce(new Vector3(0, _jumpForce * (_multiplyByMass ? _rb.mass : 1), 0));
+    }
+    private void OnSprintStart(InputAction.CallbackContext context)
+    {
+        AnimateSprite(_sprintForce, 1f, Ease.OutQuint);
+    }
+    private void OnSprintEnd(InputAction.CallbackContext context)
+    {
+        AnimateSprite(1, 1f, Ease.OutQuint);
+    }
+    private void FixedUpdate()
+    {
+        Vector2 move = _inputActions.Player.Move.ReadValue<Vector2>();
+        move *= _moveSpeed * Time.fixedDeltaTime * SmoothSprintModifier;
+        //transform.Translate(move.x, 0, move.y);
+        Quaternion rot = Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up);
+        _rb.linearVelocity = rot * new Vector3(move.x, _rb.linearVelocity.y, move.y);
+        _animator?.SetFloat(_moveSpeedAnimatorPropId, Mathf.Abs(move.y));
+    }
+
+    private void AnimateSprite(float endValue, float duration, Ease ease = Ease.Linear)
+    {
+        _sprintAnimation?.Kill();
+        _sprintAnimation = DOTween.To(
+            () => this.SmoothSprintModifier,
+            x => this.SmoothSprintModifier = x,
+            endValue,
+            duration)
+            .SetEase(ease)
+            .Play();
+    }
+}
