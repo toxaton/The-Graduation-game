@@ -597,10 +597,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a85e54eea6fb4ad42add14453bf3873f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
+  _animator: {fileID: 0}
   _moveSpeed: 5
   _jumpForce: 280
-  _SprintForce: 5
+  _sprintForce: 2
   _multiplyByMass: 1
+  <SmoothSprintModifier>k__BackingField: 0
 --- !u!4 &843314640 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3611817473983491392, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
@@ -862,7 +864,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 9452ae1262a74094f8a68013fbcd1834, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
