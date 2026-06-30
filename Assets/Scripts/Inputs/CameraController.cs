@@ -47,23 +47,32 @@ public class CameraController : MonoBehaviour
             _currentVerticalAngle -= 360f;
     }
 
-   private void FixedUpdate()
+    private void LateUpdate()
     {
         if (MenuCaller.S_MenuStatus) return;
 
         Vector2 look = _inputActions.Player.Look.ReadValue<Vector2>();
-        float lookH = look.x;
-        float lookV = look.y;
 
-        transform.Rotate(Vector3.up, lookH * _horizontalRotationModifier * Time.fixedDeltaTime);
+        // Горизонтальный поворот — через Rigidbody (важно!)
+        if (TryGetComponent<Rigidbody>(out var rb))
+        {
+            float yaw = look.x * _horizontalRotationModifier * Time.fixedDeltaTime;
+            Quaternion deltaRot = Quaternion.Euler(0, yaw, 0);
+            rb.MoveRotation(rb.rotation * deltaRot);   // ← Вот это главное
+        }
+        else
+        {
+            // если нет rb — fallback
+            transform.Rotate(Vector3.up, look.x * _horizontalRotationModifier * Time.fixedDeltaTime);
+        }
 
-        float verticalInput = lookV * _verticalRotationModifier * Time.fixedDeltaTime;
-        _currentVerticalAngle -= verticalInput; // Вычитаем, т.к. вниз - отрицательное вращение
+        // Вертикальный — только камера
+        float pitch = look.y * _verticalRotationModifier * Time.fixedDeltaTime;
+        _currentVerticalAngle -= pitch;
         _currentVerticalAngle = Mathf.Clamp(_currentVerticalAngle, _minVerticalAngle, _maxVerticalAngle);
-
-        // Применяем ограниченный вертикальный поворот
         Camera.transform.localRotation = Quaternion.Euler(_currentVerticalAngle, 0f, 0f);
     }
+
     private void LockCursor()
     {
         // Скрываем курсор и блокируем его в центре экрана

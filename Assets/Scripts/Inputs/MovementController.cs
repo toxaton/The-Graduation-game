@@ -1,4 +1,6 @@
 using DG.Tweening;
+using NaughtyAttributes;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +13,12 @@ public class MovementController : MonoBehaviour
     private float _moveSpeed = 1f;
     [SerializeField, Range(0f, 1000f)]
     private float _jumpForce = 100f;
+    [SerializeField]
+    private FeetTrigger _feet;
+    private DateTime _lastJump;
+    [SerializeField]
+    private float _jumpDelaySec = 0.2f;
+    private bool CanJump => _lastJump.AddSeconds(_jumpDelaySec) < DateTime.UtcNow;
     [SerializeField, Range(0f, 5f)]
     private float _sprintForce = 2f;
     [SerializeField]
@@ -51,8 +59,11 @@ public class MovementController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
+        if (!_feet.IsGrounded || !CanJump) return;
+        _lastJump = DateTime.UtcNow;
         _rb.AddForce(new Vector3(0, _jumpForce * (_multiplyByMass ? _rb.mass : 1), 0));
     }
+    
     private void OnSprintStart(InputAction.CallbackContext context)
     {
         AnimateSprite(_sprintForce, 1f, Ease.OutQuint);
