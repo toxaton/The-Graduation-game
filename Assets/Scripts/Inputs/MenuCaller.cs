@@ -21,6 +21,7 @@ public class MenuCaller : MonoBehaviour
 
     private InputSystem_Actions _inputActions;
 
+    public UnityEvent OnStartEvent;
     public UnityEvent OnMenuCalledEvent;
     public UnityEvent<bool> OnMenuCalledWithStatusEvent;
     public static Action OnMenuCalled;
@@ -38,6 +39,10 @@ public class MenuCaller : MonoBehaviour
         S_MenuStatus = false;
     }
 
+    private void Start()
+    {
+        OnStartEvent?.Invoke();
+    }
     private void OnEnable()
     {
         _inputActions ??= new();
@@ -53,7 +58,11 @@ public class MenuCaller : MonoBehaviour
 
     public void ChangeStatus()
     {
-        S_MenuStatus = !S_MenuStatus;
+        SetPause(!S_MenuStatus);
+    }
+    public void SetPause(bool paused)
+    {
+        S_MenuStatus = paused;
         OnMenuCalledEvent?.Invoke();
         OnMenuCalledWithStatusEvent?.Invoke(S_MenuStatus);
     }

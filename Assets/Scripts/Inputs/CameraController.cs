@@ -39,7 +39,6 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        LockCursor();
         // Инициализируем текущий вертикальный угол
         _currentVerticalAngle = Camera.transform.localEulerAngles.x;
         // Нормализуем угол (если он больше 180, переводим в отрицательный)
