@@ -177,8 +177,16 @@ PrefabInstance:
       value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 566273070456848524, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
+      propertyPath: _objectPickup
+      value: 
+      objectReference: {fileID: 3976457248417893017}
+    - target: {fileID: 566273070456848524, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
       propertyPath: groundMask.m_Bits
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 566273070456848524, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
+      propertyPath: _pickedObjectMinMaxSpeedAffects.y
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 620060874746419131, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -706,6 +714,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 7740509238205742796}
   m_SourcePrefab: {fileID: 100100000, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
+--- !u!114 &1209425567647232503 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 566273070456848524, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
+  m_PrefabInstance: {fileID: 1662796374561796475}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2314129111968684456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a85e54eea6fb4ad42add14453bf3873f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovementController
 --- !u!1 &2314129111968684456 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3967108684766030035, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}
@@ -738,6 +757,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   _pickableObject: {fileID: 0}
+  OnPickedObjectChangedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1209425567647232503}
+        m_TargetAssemblyTypeName: MovementController, Assembly-CSharp
+        m_MethodName: UpdatePickedObjectSpeedModifier
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!20 &2430431201098544385 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 3938908265753150586, guid: 1c8950e890f8de640b645d9ccc90ffa4, type: 3}

@@ -1,6 +1,7 @@
 using NaughtyAttributes;
 using System.Drawing;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using static UnityEngine.GraphicsBuffer;
 
@@ -24,9 +25,12 @@ public class ObjectPickup : MonoBehaviour
     private InputSystem_Actions _inputActions;
     [SerializeField, ReadOnly]
     private PickableObject _pickableObject;
-    private Rigidbody _heldObject => _pickableObject?.Rigidbody ?? null;
-    public bool IsHoldingObject => _pickableObject != null;
+    public PickableObject PickableObject => _pickableObject;
+    public Rigidbody HeldObject => PickableObject?.Rigidbody ?? null;
+    public bool IsHoldingObject => PickableObject != null;
     private Quaternion _pickupRotationOffset = Quaternion.identity;
+
+    public UnityEvent OnPickedObjectChangedEvent;
 
     private void OnValidate()
     {
@@ -50,14 +54,14 @@ public class ObjectPickup : MonoBehaviour
     {
         if (!IsHoldingObject) return;
 
-        Vector3 delta = _holdPoint.position - _heldObject.position;
-        Vector3 force = delta * _spring - _heldObject.linearVelocity * _damping;
+        Vector3 delta = _holdPoint.position - HeldObject.position;
+        Vector3 force = delta * _spring - HeldObject.linearVelocity * _damping;
         force = Vector3.ClampMagnitude(force, _maxForce);
-        _heldObject.AddForce(force, ForceMode.Acceleration);
+        HeldObject.AddForce(force, ForceMode.Acceleration);
 
         Quaternion targetRotation;
 
-        switch (_pickableObject.HoldRotation)
+        switch (PickableObject.HoldRotation)
         {
             case HoldRotationMode.FaceCamera:
                 targetRotation = _playerCamera.transform.rotation;
@@ -69,7 +73,7 @@ public class ObjectPickup : MonoBehaviour
                 break;
         }
 
-        Quaternion currentRot = _heldObject.rotation;
+        Quaternion currentRot = HeldObject.rotation;
         Quaternion deltaRot = targetRotation * Quaternion.Inverse(currentRot);
 
         deltaRot = Quaternion.RotateTowards(Quaternion.identity, deltaRot, 180f);
@@ -79,14 +83,14 @@ public class ObjectPickup : MonoBehaviour
         if (angle > 0.01f)
         {
             float currentAngularSpring = _angularSpring;
-            if (_pickableObject.HoldRotation == HoldRotationMode.Free)
+            if (PickableObject.HoldRotation == HoldRotationMode.Free)
                 currentAngularSpring *= 0.65f;   // подбери под себя
 
             Vector3 torque = axis * (angle * Mathf.Deg2Rad * currentAngularSpring)
-                            - _heldObject.angularVelocity * _angularDamping;
+                            - HeldObject.angularVelocity * _angularDamping;
 
             torque = Vector3.ClampMagnitude(torque, _maxTorque);
-            _heldObject.AddTorque(torque, ForceMode.Acceleration);
+            HeldObject.AddTorque(torque, ForceMode.Acceleration);
         }
     }
 
@@ -119,17 +123,19 @@ public class ObjectPickup : MonoBehaviour
             {
                 _pickableObject = pO;
                 //_heldObject.useGravity = false;
-                _heldObject.angularVelocity = Vector3.zero;
-                _heldObject.linearVelocity = Vector3.zero;
-                _pickupRotationOffset = Quaternion.Inverse(_playerCamera.transform.rotation) * _heldObject.rotation;
+                HeldObject.angularVelocity = Vector3.zero;
+                HeldObject.linearVelocity = Vector3.zero;
+                _pickupRotationOffset = Quaternion.Inverse(_playerCamera.transform.rotation) * HeldObject.rotation;
+                OnPickedObjectChangedEvent?.Invoke();
             }
         }
     }
     private void DropObject()
     {
-        if (!_pickableObject.TryDrop()) return;
+        if (!PickableObject.TryDrop()) return;
 
         //_heldObject.useGravity = true;
         _pickableObject = null;
+        OnPickedObjectChangedEvent?.Invoke();
     }
 }

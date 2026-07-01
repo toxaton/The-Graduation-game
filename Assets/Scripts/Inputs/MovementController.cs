@@ -26,8 +26,38 @@ public class MovementController : MonoBehaviour
     private InputSystem_Actions _inputActions;
     private Rigidbody _rb;
 
-    [field: SerializeField, Range(0f, 5f)]
+    [field: SerializeField, Range(0f, 5f), ReadOnly]
     public float SmoothSprintModifier { get; private set; }
+
+    #region ChangeSpeedByPickedOpject
+    [SerializeField]
+    private ObjectPickup _objectPickup;
+    [SerializeField, ShowIf("ChangeSpeedByPickedObject")]
+    private bool _autoUpdateModifier = false;
+    private bool ChangeSpeedByPickedObject => _objectPickup != null;
+    [SerializeField, MinMaxSlider(minValue: 0, maxValue: 100), ShowIf("ChangeSpeedByPickedObject")]
+    private Vector2 _pickedObjectMassMinMaxLimits = new Vector2(0, 100);
+    [SerializeField, ShowIf("ChangeSpeedByPickedObject")]
+    private Vector2 _pickedObjectMinMaxSpeedAffects = new Vector2(1, 0.5f);
+    [SerializeField, ShowIf("ChangeSpeedByPickedObject"), ReadOnly]
+    private float _pickedObjectSpeedModifier = 1f;
+    public void UpdatePickedObjectSpeedModifier() => _pickedObjectSpeedModifier = GetPickedObjectSpeedModifier();
+    private float GetPickedObjectSpeedModifier()
+    {
+        if (!ChangeSpeedByPickedObject || _objectPickup.HeldObject is null) return 1;
+        float mass = _objectPickup.HeldObject.mass,
+        minLim = _pickedObjectMassMinMaxLimits.x,       maxLim = _pickedObjectMassMinMaxLimits.y,
+        minAff = _pickedObjectMinMaxSpeedAffects.x,     maxAff = _pickedObjectMinMaxSpeedAffects.y;
+        float diapLim = maxLim - minAff, diapAff = maxAff - minAff;
+        if (diapLim == 0 || diapAff == 0) return 1;
+        if (mass <= minLim) return minAff;
+        if (mass >= maxLim) return maxAff;
+        float diapMass = mass - minLim,
+            k = diapMass / diapLim;
+        
+        return minAff + (k * diapAff);
+    }
+    #endregion
 
     private Tween _sprintAnimation;
 
@@ -74,8 +104,10 @@ public class MovementController : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        if (_autoUpdateModifier) UpdatePickedObjectSpeedModifier();
+
         Vector2 move = _inputActions.Player.Move.ReadValue<Vector2>();
-        move *= _moveSpeed * Time.fixedDeltaTime * SmoothSprintModifier;
+        move *= _moveSpeed * Time.fixedDeltaTime * SmoothSprintModifier * _pickedObjectSpeedModifier;
         //transform.Translate(move.x, 0, move.y);
         Quaternion rot = Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up);
         _rb.linearVelocity = rot * new Vector3(move.x, _rb.linearVelocity.y, move.y);
