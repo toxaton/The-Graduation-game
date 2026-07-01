@@ -5,8 +5,7 @@ public class GatesController : MonoBehaviour
 {
     [SerializeField]
     private Animator _gatesAnimator;
-    private readonly int _gateOpenTriggerId = Animator.StringToHash("open");
-    private readonly int _gateCloseTriggerId = Animator.StringToHash("close");
+    private readonly int _gateIsOpenedId = Animator.StringToHash("IsOpened");
 
     private void OnValidate()
     {
@@ -17,11 +16,11 @@ public class GatesController : MonoBehaviour
     [Button("Close", EButtonEnableMode.Playmode)]
     public void CloseGates()
     {
-        _gatesAnimator.SetTrigger(_gateCloseTriggerId);
+        _gatesAnimator.SetBool(_gateIsOpenedId, false);
     }
     [Button("Open", EButtonEnableMode.Playmode)]
     public void OpenGates()
     {
-        _gatesAnimator.SetTrigger(_gateOpenTriggerId);
+        _gatesAnimator.SetBool(_gateIsOpenedId, true);
     }
 }
