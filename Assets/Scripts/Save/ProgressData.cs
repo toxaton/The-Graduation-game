@@ -13,7 +13,7 @@ public class ProgressData : ScriptableObject
         set
         {
             _currentLevel = value;
-            PlayerPrefs.SetInt(_currentLevelName, CurrentLevel);
+            SaveProgress();
             OnCurrentLevelChanged?.Invoke(CurrentLevel);
         }
     }

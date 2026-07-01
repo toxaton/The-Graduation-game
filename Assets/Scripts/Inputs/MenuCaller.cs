@@ -16,6 +16,10 @@ public class MenuCaller : MonoBehaviour
             Time.timeScale = value ? 0.0f : 1.0f;
             OnMenuCalled?.Invoke();
             OnMenuCalledWithStatus?.Invoke(S_MenuStatus);
+            if (s_menuStatus)
+                UnlockCursor();
+            else
+                LockCursor();
         }
     }
 
@@ -36,7 +40,7 @@ public class MenuCaller : MonoBehaviour
     }
     private static void OnSceneChange(Scene _s, LoadSceneMode _l)
     {
-        S_MenuStatus = false;
+        S_MenuStatus = true;
     }
 
     private void Start()
@@ -65,6 +69,29 @@ public class MenuCaller : MonoBehaviour
         S_MenuStatus = paused;
         OnMenuCalledEvent?.Invoke();
         OnMenuCalledWithStatusEvent?.Invoke(S_MenuStatus);
+    }
+    public static void LockCursor()
+    {
+        // Скрываем курсор и блокируем его в центре экрана
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+    public static void UnlockCursor()
+    {
+        // Показываем курсор и разблокируем его
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+    public static void ToggleCursorLock(bool status)
+    {
+        if (status)
+        {
+            UnlockCursor();
+        }
+        else
+        {
+            LockCursor();
+        }
     }
     private void OnCall(InputAction.CallbackContext context)
     {

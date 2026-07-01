@@ -24,17 +24,10 @@ public class CameraController : MonoBehaviour
     {
         _inputActions ??= new();
         _inputActions.Enable();
-        MenuCaller.OnMenuCalledWithStatus -= ToggleCursorLock;
-        MenuCaller.OnMenuCalledWithStatus += ToggleCursorLock;
-
-        LockCursor();
     }
     private void OnDisable()
     {
-        MenuCaller.OnMenuCalledWithStatus -= ToggleCursorLock;
         _inputActions.Disable();
-
-        UnlockCursor();
     }
 
     private void Start()
@@ -72,29 +65,5 @@ public class CameraController : MonoBehaviour
         Camera.transform.localRotation = Quaternion.Euler(_currentVerticalAngle, 0f, 0f);
     }
 
-    private void LockCursor()
-    {
-        // Скрываем курсор и блокируем его в центре экрана
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-    }
-
-    private void UnlockCursor()
-    {
-        // Показываем курсор и разблокируем его
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-    }
-
-    private void ToggleCursorLock(bool status)
-    {
-        if (status)
-        {
-            UnlockCursor();
-        }
-        else
-        {
-            LockCursor();
-        }
-    }
+    
 }
