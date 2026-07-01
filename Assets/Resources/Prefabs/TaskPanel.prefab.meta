@@ -1,6 +1,11 @@
 fileFormatVersion: 2
-guid: 1c8e7d42e4fc73246afc526087deb285
+<<<<<<<< HEAD:Assets/Resources/Prefabs/TaskPanel.prefab.meta
+guid: 834b2fb8f8f8c01418ee757f5d524b84
 PrefabImporter:
+========
+guid: 28e4dda06c7b45e4494080a0e4c39a4a
+DefaultImporter:
+>>>>>>>> dcf78a9 (New levels):Assets/Scenes/Level 2.unity.meta
   externalObjects: {}
   userData: 
   assetBundleName: 
